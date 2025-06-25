@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# cache
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# PyInstaller
+*.spec
+*.exe
+
+# Environment
+.env
+.venv
+venv/
+ENV/
+
+# macOS / Linux / Windows
+.DS_Store
+Thumbs.db
+
+# Logs and settings
+logs/
+config.ini
+
+# VSCode settings
+.vscode/
