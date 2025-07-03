@@ -10,19 +10,17 @@ CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 def main(page: ft.Page):
     page.title = "WellChecker - 今日の体調チェックアプリ"
-    page.window_width = 400
-    page.window_height = 300
+    page.window_width = 420
+    page.window_height = 360
     page.window_resizable = False
 
     # config.ini が存在しなければ設定画面に遷移
     if not config_exists(CONFIG_PATH):
-        page.controls.clear()
-        settings_view = settings_form(page, config_path=CONFIG_PATH)
-        page.add(settings_view)
+        settings_view = settings_form(page, config_path=CONFIG_PATH, is_first_time=True)
+        page.controls.append(settings_view)
     else:
-        page.controls.clear()
         health_view = wellchecker_form(page, config_path=CONFIG_PATH)
-        page.add(health_view)
+        page.controls.append(health_view)
 
     page.update()
 

@@ -1,20 +1,15 @@
 import flet as ft
 import datetime
+from config_handler import load_config
+from settings_form import settings_form
+from pathlib import Path
 # from mail_sender import send_health_report
 
 def wellchecker_form(page: ft.Page, config_path):
-    from config_handler import load_config
     config = load_config(config_path)
-
-    page.title = "体調申告 - WellChecker"
-    page.window_width = 420
-    page.window_height = 360
-    page.window_resizable = False
-
     today = datetime.date.today().strftime("%Y-%m-%d")
     submitted = False
     status = ft.Text(value="", size=12, color=ft.Colors.GREEN)
-
     selected_condition = ft.Ref[ft.Container]()
 
     def on_condition_select(e):
@@ -41,6 +36,7 @@ def wellchecker_form(page: ft.Page, config_path):
         status.value = f"{today} の体調 ({condition}) を送信しました。"
         submitted = True
         status.color = ft.Colors.GREEN
+        page.update()
 
         # # メール送信処理
         # send_health_report(config_path=config_path, condition=condition)
@@ -64,6 +60,20 @@ def wellchecker_form(page: ft.Page, config_path):
             on_click=on_condition_select
         )
 
+    def go_to_settings(e):
+        page.controls.clear()
+        page.add(settings_form(page, config_path))
+        page.update()
+
+    page.appbar = ft.AppBar(
+        title=ft.Text("体調申告 - WellChecker"),
+        center_title=True,
+        bgcolor=ft.Colors.BLUE_300,
+        actions=[
+            ft.IconButton(icon=ft.Icons.SETTINGS, on_click=go_to_settings)
+        ]
+    )
+
     condition_options = ft.Row([
         build_condition_tile("😊", "◎", ft.Colors.GREEN_100, "◎"),
         build_condition_tile("🙂", "○", ft.Colors.LIGHT_GREEN_100, "○"),
@@ -72,10 +82,8 @@ def wellchecker_form(page: ft.Page, config_path):
     ], alignment=ft.MainAxisAlignment.SPACE_EVENLY)
 
     submit_button = ft.ElevatedButton("体調を送信", on_click=on_submit, bgcolor=ft.Colors.BLUE, color=ft.Colors.WHITE)
-
     return ft.Column([
-        ft.Text(f"今日の日付: {today}", size=16),
-        ft.Text(f"{config['employee_id']} - {config['name']} さんの体調を申告", size=18, weight=ft.FontWeight.BOLD),
+        ft.Row([ft.Text("今日の体調を申告してください", size=18, expand=True)]),
         ft.Divider(),
         condition_options,
         ft.Container(height=20),
