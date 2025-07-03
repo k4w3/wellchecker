@@ -1,63 +1,92 @@
 import flet as ft
-from datetime import datetime
-import csv
-import os
-from pathlib import Path
+import datetime
 from config_handler import load_config
+from settings_form import settings_form
+from pathlib import Path
+# from mail_sender import send_health_report
 
-def wellchecker_form(page: ft.Page, config_path: Path):
-    page.title = "今日の体調申告"
-
+def wellchecker_form(page: ft.Page, config_path):
     config = load_config(config_path)
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.date.today().strftime("%Y-%m-%d")
     submitted = False
-    status_text = ft.Text(value="", color=ft.Colors.GREEN, size=12)
+    status = ft.Text(value="", size=12, color=ft.Colors.GREEN)
+    selected_condition = ft.Ref[ft.Container]()
 
-    radio_group = ft.RadioGroup(
-        content=ft.Column([
-            ft.Text("今日の体調を選択してください", size=18),
-            ft.Radio(value="◎", label="◎ 絶好調"),
-            ft.Radio(value="○", label="○ 普通"),
-            ft.Radio(value="△", label="△ 少し体調が悪い"),
-            ft.Radio(value="✕", label="✕ 体調が悪い"),
-        ])
-    )
+    def on_condition_select(e):
+        for c in condition_options.controls:
+            c.bgcolor = ft.Colors.GREY_200
+        e.control.bgcolor = ft.Colors.BLUE_200
+        selected_condition.current = e.control
+        page.update()
 
     def on_submit(e):
         nonlocal submitted
-        if not radio_group.value:
-            status_text.value = "体調を選択してください。"
-            status_text.color = ft.Colors.RED
+        if not selected_condition.current:
+            status.value = "体調を選択してください。"
+            status.color = ft.Colors.RED
             page.update()
             return
         if submitted:
-            status_text.value = "本日はすでに申告済みです。"
-            status_text.color = ft.Colors.RED
+            status.value = "本日はすでに申告済みです。"
+            status.color = ft.Colors.RED
             page.update()
             return
 
-        record = [today, config['employee_id'], config['name'], radio_group.value]
-        log_dir = os.path.join(os.getenv("APPDATA"), "WellChecker", "logs")
-        os.makedirs(log_dir, exist_ok=True)
-        file_path = os.path.join(log_dir, f"{today}_{config['employee_id']}.csv")
-
-        with open(file_path, "w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(["日付", "社員ID", "名前", "体調"])
-            writer.writerow(record)
-
-        # ✉️ メール送信は体調が △ or ✕ の場合に後で実装
-        if radio_group.value in ["△", "✕"]:
-            status_text.value = f"{radio_group.value} 申告完了（※上長に通知が必要です）"
-        else:
-            status_text.value = f"{radio_group.value} 申告完了しました。"
-
+        condition = selected_condition.current.data
+        status.value = f"{today} の体調 ({condition}) を送信しました。"
         submitted = True
-        status_text.color = ft.Colors.GREEN
+        status.color = ft.Colors.GREEN
         page.update()
 
+        # # メール送信処理
+        # send_health_report(config_path=config_path, condition=condition)
+
+        page.update()
+
+    def build_condition_tile(emoji, label, color, data):
+        return ft.Container(
+            content=ft.Column([
+                ft.Text(emoji, size=80),
+                ft.Text(label, size=24)
+            ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+            alignment=ft.alignment.center,
+            bgcolor=ft.Colors.GREY_200,
+            border_radius=10,
+            padding=20,
+            width=180,
+            height=180,
+            ink=True,
+            data=data,
+            on_click=on_condition_select
+        )
+
+    def go_to_settings(e):
+        page.controls.clear()
+        page.add(settings_form(page, config_path))
+        page.update()
+
+    page.appbar = ft.AppBar(
+        title=ft.Text("体調申告 - WellChecker"),
+        center_title=True,
+        bgcolor=ft.Colors.BLUE_300,
+        actions=[
+            ft.IconButton(icon=ft.Icons.SETTINGS, on_click=go_to_settings)
+        ]
+    )
+
+    condition_options = ft.Row([
+        build_condition_tile("😊", "◎", ft.Colors.GREEN_100, "◎"),
+        build_condition_tile("🙂", "○", ft.Colors.LIGHT_GREEN_100, "○"),
+        build_condition_tile("😐", "△", ft.Colors.AMBER_100, "△"),
+        build_condition_tile("😷", "✕", ft.Colors.RED_100, "✕"),
+    ], alignment=ft.MainAxisAlignment.SPACE_EVENLY)
+
+    submit_button = ft.ElevatedButton("体調を送信", on_click=on_submit, bgcolor=ft.Colors.BLUE, color=ft.Colors.WHITE)
     return ft.Column([
-        radio_group,
-        ft.ElevatedButton("申告", on_click=on_submit),
-        status_text
-    ], tight=True, alignment=ft.MainAxisAlignment.START)
+        ft.Row([ft.Text("今日の体調を申告してください", size=18, expand=True)]),
+        ft.Divider(),
+        condition_options,
+        ft.Container(height=20),
+        submit_button,
+        status
+    ], spacing=12, alignment=ft.MainAxisAlignment.START, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
