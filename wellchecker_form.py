@@ -1,6 +1,7 @@
 import flet as ft
 import datetime
 from settings_form import settings_form
+from mail_sender import send_health_report
 from pathlib import Path
 
 def wellchecker_form(page: ft.Page, config_path: Path):
@@ -35,6 +36,10 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             status.value = f"{today} の体調 ({condition}) を送信しました。"
             submitted = True
             status.color = ft.Colors.GREEN
+
+            # メール送信処理
+            send_health_report(config_path=config_path, condition=condition)
+
         page.update()
 
     def build_condition_tile(emoji, label, data):
