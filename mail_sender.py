@@ -17,10 +17,10 @@ def send_health_report(config_path: Path, condition: str):
     try:
         config = load_config(config_path)
         receiver_email = config.get("manager_email", "")
+        cc_email = config.get("cc_email", "")
         employee_id = config.get("employee_id", "")
         name = config.get("name", "")
 
-        # 上長のメールアドレスチェック
         if not receiver_email:
             error_msg = "上長のメールアドレスが設定されていません。"
             logging.error(error_msg)
@@ -30,6 +30,8 @@ def send_health_report(config_path: Path, condition: str):
             outlook = win32.Dispatch('Outlook.Application')
             mail = outlook.CreateItem(0)
             mail.To = receiver_email
+            if cc_email:
+                mail.CC = ", ".join([x.strip() for x in cc_email.split(",")])
             mail.Subject = f"【体調報告】{name} ({employee_id}) さんの状態: {condition}"
             mail.Body = (
                 f"{name}（社員ID: {employee_id}）より、"
