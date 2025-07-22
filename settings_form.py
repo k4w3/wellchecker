@@ -1,6 +1,7 @@
 import flet as ft
 from config_handler import save_config, load_config
 from pathlib import Path
+import re
 
 def settings_form(page: ft.Page, config_path: Path):
     from wellchecker_form import wellchecker_form
@@ -33,9 +34,19 @@ def settings_form(page: ft.Page, config_path: Path):
     cc_email = ft.TextField(label="CCメールアドレス（カンマ区切り可）", width=300, value=config["cc_email"])
     status_text = ft.Text(value="", color=ft.Colors.GREEN, size=12)
 
+    def is_valid_email(email: str) -> bool:
+        # 簡易的なメール形式チェック
+        return bool(re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email))
+
     def on_submit(e):
         if not all([employee_id.value, name.value, manager_name.value, manager_email.value]):
             status_text.value = "すべての項目を入力してください。"
+            status_text.color = ft.Colors.RED
+        elif not is_valid_email(manager_email.value):
+            status_text.value = "上長のメールアドレスが不正です。"
+            status_text.color = ft.Colors.RED
+        elif cc_email.value and any(not is_valid_email(addr.strip()) for addr in cc_email.value.split(",")):
+            status_text.value = "CCメールアドレスの形式が不正です。"
             status_text.color = ft.Colors.RED
         else:
             save_config(
