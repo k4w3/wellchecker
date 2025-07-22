@@ -22,7 +22,7 @@
 | `flet`                 | GUI作成     | クロスプラットフォーム対応のGUIライブラリ |
 | `configparser`         | INI設定読み書き | 標準                     |
 | `csv`, `os`, `pathlib` | ログ出力/整理   | 標準                     |
-| `smtplib`, `email`     | メール送信     | SMTP/セキュアプロトコル対応       |
+| `pywin32`, `email`     | メール送信     | Outlook操作       |
 | `datetime`             | 日付処理      | 標準                     |
 
 ---
