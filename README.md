@@ -22,7 +22,7 @@
 | 言語 | Python 3.x |
 | GUI | [Flet](https://flet.dev/) |
 | パッケージ化 | PyInstaller |
-| メール送信 | smtplib（TLS対応） |
+| メール送信 | pywin32 (Outlook COM) |
 
 ---
 
