@@ -15,17 +15,15 @@ def load_config(config_path: Path) -> dict:
         "name": config.get("USER", "name", fallback=""),
         "manager_name": config.get("MANAGER", "name", fallback=""),
         "manager_email": config.get("MANAGER", "manager_email", fallback=""),
-        "user_email": config.get("USER", "user_email", fallback=""),
         "max_days": config.getint("LOG", "max_days", fallback=90),
         "max_files": config.getint("LOG", "max_files", fallback=100),
     }
 
-def save_config(config_path: Path, employee_id, name, manager_name, manager_email, user_email):
+def save_config(config_path: Path, employee_id, name, manager_name, manager_email):
     config = configparser.ConfigParser()
     config["USER"] = {
         "employee_id": employee_id,
         "name": name,
-        "user_email": user_email
     }
     config["MANAGER"] = {
         "name": manager_name,
