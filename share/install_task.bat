@@ -1,24 +1,20 @@
 @echo off
 setlocal
 
-REM ã“ã®ãƒãƒƒãƒãƒ•ã‚¡ã‚¤ãƒ«ãŒã‚ã‚‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«ç§»å‹•
+:: ‚±‚Ìƒoƒbƒ`ƒtƒ@ƒCƒ‹‚ª‚ ‚éƒfƒBƒŒƒNƒgƒŠ‚ÉˆÚ“®
 cd /d "%~dp0"
 
-:: WellChecker.exeã®é…ç½®å…ˆ
+:: exe‚Ì”z’u
 set APPDIR=%APPDATA%\WellChecker
-set APP=%APPDIR%\wellchecker.exe
-
 if not exist "%APPDIR%" mkdir "%APPDIR%"
 copy /Y wellchecker.exe "%APPDIR%"
 
-schtasks /delete /tn "WellChecker" /f >nul 2>&1
+:: ƒ^ƒXƒN‚Ìì¬
+set TASK_NAME=WellChecker
+set XML_FILE=%~dp0wellchecker_task.xml
+schtasks /delete /tn "%TASK_NAME%" /f >nul 2>&1
+schtasks /create /tn "%TASK_NAME%" /xml "%XML_FILE%" /f
 
-schtasks /create ^
-/tn "WellChecker" ^
-/tr "\"%APP%\"" ^
-/sc onlogon ^
-/f
-
-echo [INFO] WellCheckerã‚¿ã‚¹ã‚¯ã‚¹ã‚±ã‚¸ãƒ¥ãƒ¼ãƒ©ç™»éŒ²å®Œäº†
+echo [INFO] WellCheckerƒ^ƒXƒNƒXƒPƒWƒ…[ƒ‰“o˜^Š®—¹
 pause
 endlocal
