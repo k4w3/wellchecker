@@ -1,3 +1,4 @@
+import os
 import pythoncom
 import win32com.client as win32
 import logging
@@ -5,10 +6,14 @@ from pathlib import Path
 from config_handler import load_config
 
 # --- ログ設定 (ERROR以上のみログに残す) ---
+log_dir = Path(os.getenv("APPDATA")) / "WellChecker"
+log_dir.mkdir(parents=True, exist_ok=True)
+log_file = log_dir / "wellchecker_error.log"
+
 logging.basicConfig(
     level=logging.ERROR,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    filename="wellchecker_error.log",
+    filename=str(log_file),
     filemode="a"
 )
 

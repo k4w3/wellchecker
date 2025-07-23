@@ -3,6 +3,7 @@ import datetime
 from settings_form import settings_form
 from mail_sender import send_health_report
 from pathlib import Path
+from utils import write_last_run_date
 
 def wellchecker_form(page: ft.Page, config_path: Path):
 
@@ -39,6 +40,8 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
             # メール送信処理
             send_health_report(config_path=config_path, condition=condition)
+            # 今日の実行記録を記述
+            write_last_run_date()
 
         page.update()
 
