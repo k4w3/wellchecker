@@ -6,9 +6,13 @@ echo [INFO] WellChecker exe ビルド開始...
 call .\venv\Scripts\activate
 
 :: PyInstaller実行
-REM pyinstaller --onefile --name wellchecker main.py
+:: pyinstaller --onefile --name wellchecker main.py
 flet pack main.py --name wellchecker
-REM flet pack main.py --name wellchecker --onedir
+:: flet pack main.py --name wellchecker --onedir
+
+:: distフォルダからshareフォルダにコピー
+if not exist share mkdir share
+copy /Y dist\wellchecker.exe share\wellchecker.exe
 
 echo [INFO] ビルド完了
 echo output_dir: dist\wellchecker.exe
