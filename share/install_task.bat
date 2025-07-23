@@ -1,7 +1,10 @@
 @echo off
 setlocal
 
-:: WellChecker.exe‚Ì”z’uæ
+REM ã“ã®ãƒãƒƒãƒãƒ•ã‚¡ã‚¤ãƒ«ãŒã‚ã‚‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«ç§»å‹•
+cd /d "%~dp0"
+
+:: WellChecker.exeã®é…ç½®å…ˆ
 set APPDIR=%APPDATA%\WellChecker
 set APP=%APPDIR%\wellchecker.exe
 
@@ -11,12 +14,11 @@ copy /Y wellchecker.exe "%APPDIR%"
 schtasks /delete /tn "WellChecker" /f >nul 2>&1
 
 schtasks /create ^
-  /tn "WellChecker" ^
-  /tr "\"%APP%\"" ^
-  /sc onlogon ^
-  /rl LIMITED ^
-  /f
+/tn "WellChecker" ^
+/tr "\"%APP%\"" ^
+/sc onlogon ^
+/f
 
-echo [INFO] WellCheckerƒ^ƒXƒNƒXƒPƒWƒ…[ƒ‰“o˜^Š®—¹
+echo [INFO] WellCheckerã‚¿ã‚¹ã‚¯ã‚¹ã‚±ã‚¸ãƒ¥ãƒ¼ãƒ©ç™»éŒ²å®Œäº†
 pause
 endlocal
