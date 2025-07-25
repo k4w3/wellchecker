@@ -1,5 +1,6 @@
 import flet as ft
 import os
+import sys
 from pathlib import Path
 from config_handler import config_exists
 from settings_form import settings_form
@@ -20,7 +21,7 @@ def main(page: ft.Page):
 # 実行チェック
 if already_executed_today():
     print("WellCheckerは本日すでに実行済みです。")
-    exit()
+    sys.exit()
 
 if __name__ == "__main__":
     ft.app(target=main)
