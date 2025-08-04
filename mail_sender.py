@@ -1,8 +1,10 @@
+import logging
 import os
+from pathlib import Path
+
 import pythoncom
 import win32com.client as win32
-import logging
-from pathlib import Path
+
 from config_handler import load_config
 
 # --- ログ設定 (ERROR以上のみログに残す) ---
@@ -11,11 +13,9 @@ log_dir.mkdir(parents=True, exist_ok=True)
 log_file = log_dir / "wellchecker_error.log"
 
 logging.basicConfig(
-    level=logging.ERROR,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    filename=str(log_file),
-    filemode="a"
+    level=logging.ERROR, format="%(asctime)s [%(levelname)s] %(message)s", filename=str(log_file), filemode="a"
 )
+
 
 def send_health_report(config_path: Path, condition: str):
     pythoncom.CoInitialize()
@@ -32,7 +32,7 @@ def send_health_report(config_path: Path, condition: str):
             raise ValueError(error_msg)
 
         try:
-            outlook = win32.Dispatch('Outlook.Application')
+            outlook = win32.Dispatch("Outlook.Application")
             mail = outlook.CreateItem(0)
             mail.To = receiver_email
             if cc_email:

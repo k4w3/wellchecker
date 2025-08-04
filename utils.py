@@ -1,9 +1,11 @@
-import os
 import datetime
+import os
 from pathlib import Path
+
 
 def get_log_file():
     return Path(os.getenv("APPDATA")) / "WellChecker" / "last_run_date.txt"
+
 
 def already_executed_today():
     log_file = get_log_file()
@@ -13,6 +15,7 @@ def already_executed_today():
         if last_run == today:
             return True
     return False
+
 
 def write_last_run_date():
     log_file = get_log_file()
