@@ -6,7 +6,7 @@ import flet as ft
 
 from config_handler import config_exists
 from settings_form import settings_form
-from utils import already_executed_today
+from utils import already_executed_recently
 from wellchecker_form import wellchecker_form
 
 CONFIG_PATH = Path(os.getenv("APPDATA")) / "WellChecker" / "config.ini"
@@ -23,7 +23,7 @@ def main(page: ft.Page):
 
 
 # 実行チェック
-if already_executed_today():
+if already_executed_recently():
     print("WellCheckerは本日すでに実行済みです。")
     sys.exit()
 

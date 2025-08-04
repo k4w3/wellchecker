@@ -5,7 +5,7 @@ import flet as ft
 
 from mail_sender import send_health_report
 from settings_form import settings_form
-from utils import write_last_run_date
+from utils import write_last_run_datetime
 
 
 def wellchecker_form(page: ft.Page, config_path: Path):
@@ -50,7 +50,7 @@ def wellchecker_form(page: ft.Page, config_path: Path):
                     status.color = ft.Colors.RED
 
             # 実行記録
-            write_last_run_date()
+            write_last_run_datetime()
 
         page.update()
 
