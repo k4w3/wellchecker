@@ -10,9 +10,9 @@ call .\venv\Scripts\activate
 flet pack main.py --name wellchecker
 :: flet pack main.py --name wellchecker --onedir
 
-:: distフォルダからshareフォルダにコピー
-if not exist share mkdir share
-copy /Y dist\wellchecker.exe share\wellchecker.exe
+:: distフォルダからreleaseフォルダにコピー
+if not exist release mkdir release
+copy /Y dist\wellchecker.exe release\wellchecker.exe
 
 echo [INFO] ビルド完了
 echo output_dir: dist\wellchecker.exe
