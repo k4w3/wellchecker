@@ -37,13 +37,19 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             status.color = ft.Colors.RED
         else:
             condition = selected_condition.current.data
-            status.value = f"{today} の体調 ({condition}) を送信しました。"
+            status.value = f"{today} の体調 ({condition}) を申告しました。"
             submitted = True
             status.color = ft.Colors.GREEN
 
-            # メール送信処理
-            send_health_report(config_path=config_path, condition=condition)
-            # 今日の実行記録を記述
+            # メール送信処理（△または✕のときのみ）
+            if condition in ["△", "✕"]:
+                try:
+                    send_health_report(config_path=config_path, condition=condition)
+                except Exception as ex:
+                    status.value += f"\n[メール送信失敗] {ex}"
+                    status.color = ft.Colors.RED
+
+            # 実行記録
             write_last_run_date()
 
         page.update()
