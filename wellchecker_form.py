@@ -12,7 +12,7 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
     page.title = "体調申告 - WellChecker"
     page.window_width = 420
-    page.window_height = 360
+    page.window_height = 400
     page.window_resizable = False
 
     today = datetime.date.today().strftime("%Y-%m-%d")
@@ -54,10 +54,14 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
         page.update()
 
-    def build_condition_tile(emoji, label, data):
+    def build_condition_tile(emoji, label, data, description):
         return ft.Container(
             content=ft.Column(
-                [ft.Text(emoji, size=80), ft.Text(label, size=24)],
+                [
+                    ft.Text(emoji, size=80),
+                    ft.Text(label, size=24),
+                    ft.Text(description, size=12, color=ft.Colors.GREY_600),
+                ],
                 alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             ),
@@ -66,7 +70,7 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             border_radius=10,
             padding=20,
             width=180,
-            height=180,
+            height=240,
             ink=True,
             data=data,
             on_click=on_condition_select,
@@ -86,10 +90,10 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
     condition_options = ft.Row(
         [
-            build_condition_tile("😊", "◎", "◎"),
-            build_condition_tile("🙂", "○", "○"),
-            build_condition_tile("😐", "△", "△"),
-            build_condition_tile("😷", "✕", "✕"),
+            build_condition_tile("😊", "◎", "◎", "元気いっぱい！"),
+            build_condition_tile("🙂", "○", "○", "いつも通り"),
+            build_condition_tile("😐", "△", "△", "少し不調"),
+            build_condition_tile("😷", "✕", "✕", "休むかも..."),
         ],
         alignment=ft.MainAxisAlignment.SPACE_EVENLY,
     )
