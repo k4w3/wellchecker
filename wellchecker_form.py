@@ -5,14 +5,14 @@ import flet as ft
 
 from mail_sender import send_health_report
 from settings_form import settings_form
-from utils import write_last_run_date
+from utils import write_last_run_datetime
 
 
 def wellchecker_form(page: ft.Page, config_path: Path):
 
     page.title = "体調申告 - WellChecker"
     page.window_width = 420
-    page.window_height = 360
+    page.window_height = 400
     page.window_resizable = False
 
     today = datetime.date.today().strftime("%Y-%m-%d")
@@ -37,21 +37,31 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             status.color = ft.Colors.RED
         else:
             condition = selected_condition.current.data
-            status.value = f"{today} の体調 ({condition}) を送信しました。"
+            status.value = f"{today} の体調 ({condition}) を申告しました。"
             submitted = True
             status.color = ft.Colors.GREEN
 
-            # メール送信処理
-            send_health_report(config_path=config_path, condition=condition)
-            # 今日の実行記録を記述
-            write_last_run_date()
+            # メール送信処理（△または✕のときのみ）
+            if condition in ["△", "✕"]:
+                try:
+                    send_health_report(config_path=config_path, condition=condition)
+                except Exception as ex:
+                    status.value += f"\n[メール送信失敗] {ex}"
+                    status.color = ft.Colors.RED
+
+            # 実行記録
+            write_last_run_datetime()
 
         page.update()
 
-    def build_condition_tile(emoji, label, data):
+    def build_condition_tile(emoji, label, data, description):
         return ft.Container(
             content=ft.Column(
-                [ft.Text(emoji, size=80), ft.Text(label, size=24)],
+                [
+                    ft.Text(emoji, size=80),
+                    ft.Text(label, size=24),
+                    ft.Text(description, size=12, color=ft.Colors.GREY_600),
+                ],
                 alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             ),
@@ -60,7 +70,7 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             border_radius=10,
             padding=20,
             width=180,
-            height=180,
+            height=240,
             ink=True,
             data=data,
             on_click=on_condition_select,
@@ -80,10 +90,10 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
     condition_options = ft.Row(
         [
-            build_condition_tile("😊", "◎", "◎"),
-            build_condition_tile("🙂", "○", "○"),
-            build_condition_tile("😐", "△", "△"),
-            build_condition_tile("😷", "✕", "✕"),
+            build_condition_tile("😊", "◎", "◎", "元気いっぱい！"),
+            build_condition_tile("🙂", "○", "○", "いつも通り"),
+            build_condition_tile("😐", "△", "△", "少し不調"),
+            build_condition_tile("😷", "✕", "✕", "休むかも..."),
         ],
         alignment=ft.MainAxisAlignment.SPACE_EVENLY,
     )
