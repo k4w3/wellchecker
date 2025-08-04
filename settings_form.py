@@ -1,7 +1,10 @@
-import flet as ft
-from config_handler import save_config, load_config
-from pathlib import Path
 import re
+from pathlib import Path
+
+import flet as ft
+
+from config_handler import load_config, save_config
+
 
 def settings_form(page: ft.Page, config_path: Path):
     from wellchecker_form import wellchecker_form
@@ -55,19 +58,23 @@ def settings_form(page: ft.Page, config_path: Path):
                 name=name.value,
                 manager_name=manager_name.value,
                 manager_email=manager_email.value,
-                cc_email=cc_email.value
+                cc_email=cc_email.value,
             )
             page.controls.clear()
             page.controls.append(wellchecker_form(page, config_path))
         page.update()
 
-    return ft.Column([
-        ft.Text("初回設定を行ってください", size=20),
-        employee_id,
-        name,
-        manager_name,
-        manager_email,
-        cc_email,
-        ft.ElevatedButton("保存", on_click=on_submit),
-        status_text
-    ], tight=True, alignment=ft.MainAxisAlignment.START)
+    return ft.Column(
+        [
+            ft.Text("初回設定を行ってください", size=20),
+            employee_id,
+            name,
+            manager_name,
+            manager_email,
+            cc_email,
+            ft.ElevatedButton("保存", on_click=on_submit),
+            status_text,
+        ],
+        tight=True,
+        alignment=ft.MainAxisAlignment.START,
+    )
