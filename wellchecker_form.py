@@ -1,9 +1,12 @@
-import flet as ft
 import datetime
-from settings_form import settings_form
-from mail_sender import send_health_report
 from pathlib import Path
+
+import flet as ft
+
+from mail_sender import send_health_report
+from settings_form import settings_form
 from utils import write_last_run_date
+
 
 def wellchecker_form(page: ft.Page, config_path: Path):
 
@@ -47,10 +50,11 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
     def build_condition_tile(emoji, label, data):
         return ft.Container(
-            content=ft.Column([
-                ft.Text(emoji, size=80),
-                ft.Text(label, size=24)
-            ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+            content=ft.Column(
+                [ft.Text(emoji, size=80), ft.Text(label, size=24)],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
             alignment=ft.alignment.center,
             bgcolor=ft.Colors.GREY_200,
             border_radius=10,
@@ -59,7 +63,7 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             height=180,
             ink=True,
             data=data,
-            on_click=on_condition_select
+            on_click=on_condition_select,
         )
 
     def go_to_settings(e):
@@ -71,24 +75,30 @@ def wellchecker_form(page: ft.Page, config_path: Path):
         title=ft.Text("体調申告 - WellChecker"),
         center_title=True,
         bgcolor=ft.Colors.BLUE_300,
-        actions=[
-            ft.IconButton(icon=ft.Icons.SETTINGS, on_click=go_to_settings)
-        ]
+        actions=[ft.IconButton(icon=ft.Icons.SETTINGS, on_click=go_to_settings)],
     )
 
-    condition_options = ft.Row([
-        build_condition_tile("😊", "◎", "◎"),
-        build_condition_tile("🙂", "○", "○"),
-        build_condition_tile("😐", "△", "△"),
-        build_condition_tile("😷", "✕", "✕"),
-    ], alignment=ft.MainAxisAlignment.SPACE_EVENLY)
+    condition_options = ft.Row(
+        [
+            build_condition_tile("😊", "◎", "◎"),
+            build_condition_tile("🙂", "○", "○"),
+            build_condition_tile("😐", "△", "△"),
+            build_condition_tile("😷", "✕", "✕"),
+        ],
+        alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+    )
 
     submit_button = ft.ElevatedButton("体調を送信", on_click=on_submit, bgcolor=ft.Colors.BLUE, color=ft.Colors.WHITE)
-    return ft.Column([
-        ft.Row([ft.Text("今日の体調を申告してください", size=18, expand=True)]),
-        ft.Divider(),
-        condition_options,
-        ft.Container(height=20),
-        submit_button,
-        status
-    ], spacing=12, alignment=ft.MainAxisAlignment.START, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+    return ft.Column(
+        [
+            ft.Row([ft.Text("今日の体調を申告してください", size=18, expand=True)]),
+            ft.Divider(),
+            condition_options,
+            ft.Container(height=20),
+            submit_button,
+            status,
+        ],
+        spacing=12,
+        alignment=ft.MainAxisAlignment.START,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    )
