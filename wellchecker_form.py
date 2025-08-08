@@ -12,13 +12,22 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
     page.title = "体調申告 - WellChecker"
     page.window_width = 420
-    page.window_height = 400
+    page.window_height = 460
     page.window_resizable = False
 
     today = datetime.date.today().strftime("%Y-%m-%d")
     submitted = False
     status = ft.Text(value="", size=12, color=ft.Colors.GREEN)
     selected_condition = ft.Ref[ft.Container]()
+
+    comment_field = ft.TextField(
+        label="コメント（任意）",
+        width=380,
+        height=70,
+        multiline=True,
+        max_lines=3,
+        hint_text="例）少し頭痛があります。午前は軽めの作業にしたいです。",
+    )
 
     def on_condition_select(e):
         for c in condition_options.controls:
@@ -44,7 +53,11 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             # メール送信処理（△または✕のときのみ）
             if condition in ["△", "✕"]:
                 try:
-                    send_health_report(config_path=config_path, condition=condition)
+                    send_health_report(
+                        config_path=config_path,
+                        condition=condition,
+                        comment=(comment_field.value or "").strip() or None,
+                    )
                 except Exception as ex:
                     status.value += f"\n[メール送信失敗] {ex}"
                     status.color = ft.Colors.RED
@@ -105,6 +118,8 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             ft.Divider(),
             condition_options,
             ft.Container(height=20),
+            comment_field,
+            ft.Container(height=10),
             submit_button,
             status,
         ],
