@@ -30,11 +30,23 @@ def settings_form(page: ft.Page, config_path: Path):
     else:
         page.appbar = None
 
-    employee_id = ft.TextField(label="社員ID", width=300, value=config["employee_id"])
-    name = ft.TextField(label="名前", width=300, value=config["name"])
-    manager_name = ft.TextField(label="上長の名前", width=300, value=config["manager_name"])
-    manager_email = ft.TextField(label="上長のメールアドレス", width=300, value=config["manager_email"])
-    cc_email = ft.TextField(label="CCメールアドレス（カンマ区切り可）", width=300, value=config["cc_email"])
+    employee_id = ft.TextField(label="社員ID", width=300, value=config.get("employee_id", ""))
+    user_last_name = ft.TextField(label="（あなた）姓", width=300, value=config.get("user_last_name", ""))
+    user_first_name = ft.TextField(label="（あなた）名", width=300, value=config.get("user_first_name", ""))
+    manager_last_name = ft.TextField(label="（上長）姓", width=300, value=config.get("manager_last_name", ""))
+    manager_first_name = ft.TextField(label="（上長）名", width=300, value=config.get("manager_first_name", ""))
+    user_name_row = ft.Row(
+        [user_last_name, user_first_name],
+        alignment=ft.MainAxisAlignment.START,
+        spacing=10,
+    )
+    manager_name_row = ft.Row(
+        [manager_last_name, manager_first_name],
+        alignment=ft.MainAxisAlignment.START,
+        spacing=10,
+    )
+    manager_email = ft.TextField(label="上長のメールアドレス", width=300, value=config.get("manager_email", ""))
+    cc_email = ft.TextField(label="CCメールアドレス（カンマ区切り可）", width=300, value=config.get("cc_email", ""))
     status_text = ft.Text(value="", color=ft.Colors.GREEN, size=12)
 
     def is_valid_email(email: str) -> bool:
@@ -42,8 +54,16 @@ def settings_form(page: ft.Page, config_path: Path):
         return bool(re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email))
 
     def on_submit(e):
-        if not all([employee_id.value, name.value, manager_name.value, manager_email.value]):
-            status_text.value = "すべての項目を入力してください。"
+        required = [
+            employee_id.value,
+            user_last_name.value,
+            user_first_name.value,
+            manager_last_name.value,
+            manager_first_name.value,
+            manager_email.value,
+        ]
+        if not all(required):
+            status_text.value = "必須項目が未入力です。"
             status_text.color = ft.Colors.RED
         elif not is_valid_email(manager_email.value):
             status_text.value = "上長のメールアドレスが不正です。"
@@ -55,8 +75,10 @@ def settings_form(page: ft.Page, config_path: Path):
             save_config(
                 config_path=config_path,
                 employee_id=employee_id.value,
-                name=name.value,
-                manager_name=manager_name.value,
+                user_last_name=user_last_name.value,
+                user_first_name=user_first_name.value,
+                manager_last_name=manager_last_name.value,
+                manager_first_name=manager_first_name.value,
                 manager_email=manager_email.value,
                 cc_email=cc_email.value,
             )
@@ -68,8 +90,8 @@ def settings_form(page: ft.Page, config_path: Path):
         [
             ft.Text("初回設定を行ってください", size=20),
             employee_id,
-            name,
-            manager_name,
+            user_name_row,
+            manager_name_row,
             manager_email,
             cc_email,
             ft.ElevatedButton("保存", on_click=on_submit),
