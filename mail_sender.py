@@ -22,7 +22,7 @@ def send_health_report(config_path: Path, condition: str, comment: str | None = 
         receiver_email = config.get("manager_email", "")
         cc_email = config.get("cc_email", "")
         employee_id = config.get("employee_id", "")
-        name = config.get("name", "")
+        user_fullname = " ".join(x for x in [config.get("user_last_name", ""), config.get("user_first_name", "")] if x).strip()
 
         if not receiver_email:
             error_msg = "上長のメールアドレスが設定されていません。"
@@ -35,9 +35,9 @@ def send_health_report(config_path: Path, condition: str, comment: str | None = 
             mail.To = receiver_email
             if cc_email:
                 mail.CC = ", ".join([x.strip() for x in cc_email.split(",")])
-            mail.Subject = f"【体調報告】{name} ({employee_id}) さんの状態: {condition}"
+            mail.Subject = f"【体調報告】{user_fullname} ({employee_id}) さんの状態: {condition}"
             body_lines = [
-                f"{name}（社員ID: {employee_id}）より、本日の体調申告がありました。",
+                f"{user_fullname}（社員ID: {employee_id}）より、本日の体調申告がありました。",
                 "",
                 f"【体調】: {condition}",
             ]

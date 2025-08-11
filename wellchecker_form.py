@@ -70,13 +70,13 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
             # 癒やしの一言（直近履歴と重複しないもの）
             try:
-                name = ""
+                surname = ""
                 try:
-                    cfg = load_config(config_path)
-                    name = cfg.get("name", "") or ""
+                    config = load_config(config_path)
+                    surname = config.get("user_last_name", "").strip()
                 except Exception:
                     pass
-                healing_text.value = f"💬 {pick_healing_message(condition, name=name)}"
+                healing_text.value = f"💬 {pick_healing_message(condition, name=surname)}"
             except Exception:
                 healing_text.value = "💬 ひと息ついて、今日も無理なくいきましょう。"
 
