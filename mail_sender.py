@@ -12,9 +12,7 @@ log_dir = Path(os.getenv("APPDATA")) / "WellChecker"
 log_dir.mkdir(parents=True, exist_ok=True)
 log_file = log_dir / "wellchecker_error.log"
 
-logging.basicConfig(
-    level=logging.ERROR, format="%(asctime)s [%(levelname)s] %(message)s", filename=str(log_file), filemode="a"
-)
+logging.basicConfig(level=logging.ERROR, format="%(asctime)s [%(levelname)s] %(message)s", filename=str(log_file), filemode="a")
 
 
 def send_health_report(config_path: Path, condition: str, comment: str | None = None) -> None:

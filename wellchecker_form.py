@@ -27,6 +27,7 @@ def wellchecker_form(page: ft.Page, config_path: Path):
         multiline=True,
         max_lines=3,
         hint_text="例）少し頭痛があります。午前は軽めの作業にしたいです。",
+        visible=False,
     )
 
     def on_condition_select(e):
@@ -34,6 +35,11 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             c.bgcolor = ft.Colors.GREY_200
         e.control.bgcolor = ft.Colors.BLUE_200
         selected_condition.current = e.control
+
+        # △ / ✕ のときだけコメント欄を可視化
+        cond = e.control.data
+        comment_field.visible = cond in ["△", "✕"]
+
         page.update()
 
     def on_submit(e):
@@ -105,13 +111,13 @@ def wellchecker_form(page: ft.Page, config_path: Path):
         [
             build_condition_tile("😊", "◎", "◎", "元気いっぱい！"),
             build_condition_tile("🙂", "○", "○", "いつも通り"),
-            build_condition_tile("😐", "△", "△", "少し不調"),
-            build_condition_tile("😷", "✕", "✕", "休むかも..."),
+            build_condition_tile("😐", "△", "△", "少し不調かも"),
+            build_condition_tile("😷", "✕", "✕", "早退するかも..."),
         ],
         alignment=ft.MainAxisAlignment.SPACE_EVENLY,
     )
 
-    submit_button = ft.ElevatedButton("体調を送信", on_click=on_submit, bgcolor=ft.Colors.BLUE, color=ft.Colors.WHITE)
+    submit_button = ft.ElevatedButton("体調を申告", on_click=on_submit, bgcolor=ft.Colors.BLUE, color=ft.Colors.WHITE)
     return ft.Column(
         [
             ft.Row([ft.Text("今日の体調を申告してください", size=18, expand=True)]),
