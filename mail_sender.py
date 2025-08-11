@@ -12,12 +12,10 @@ log_dir = Path(os.getenv("APPDATA")) / "WellChecker"
 log_dir.mkdir(parents=True, exist_ok=True)
 log_file = log_dir / "wellchecker_error.log"
 
-logging.basicConfig(
-    level=logging.ERROR, format="%(asctime)s [%(levelname)s] %(message)s", filename=str(log_file), filemode="a"
-)
+logging.basicConfig(level=logging.ERROR, format="%(asctime)s [%(levelname)s] %(message)s", filename=str(log_file), filemode="a")
 
 
-def send_health_report(config_path: Path, condition: str):
+def send_health_report(config_path: Path, condition: str, comment: str | None = None) -> None:
     pythoncom.CoInitialize()
     try:
         config = load_config(config_path)
@@ -38,13 +36,22 @@ def send_health_report(config_path: Path, condition: str):
             if cc_email:
                 mail.CC = ", ".join([x.strip() for x in cc_email.split(",")])
             mail.Subject = f"【体調報告】{name} ({employee_id}) さんの状態: {condition}"
-            mail.Body = (
-                f"{name}（社員ID: {employee_id}）より、"
-                f"本日の体調申告がありました。\n\n"
-                f"【体調】: {condition}\n\n"
-                "WellCheckerより自動送信"
-            )
+            body_lines = [
+                f"{name}（社員ID: {employee_id}）より、本日の体調申告がありました。",
+                "",
+                f"【体調】: {condition}",
+            ]
+            if comment:
+                body_lines.extend(["", "【コメント】", comment])
+
+            body_lines.append("")
+            body_lines.append("WellCheckerより自動送信")
+            mail.Body = "\n".join(body_lines)
+
             mail.Send()
+
+            # # 動作確認用
+            # mail.Display()
         except Exception as e:
             logging.error("メール送信失敗: %s", e)
             raise

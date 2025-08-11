@@ -12,7 +12,7 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
     page.title = "体調申告 - WellChecker"
     page.window_width = 420
-    page.window_height = 400
+    page.window_height = 460
     page.window_resizable = False
 
     today = datetime.date.today().strftime("%Y-%m-%d")
@@ -20,11 +20,26 @@ def wellchecker_form(page: ft.Page, config_path: Path):
     status = ft.Text(value="", size=12, color=ft.Colors.GREEN)
     selected_condition = ft.Ref[ft.Container]()
 
+    comment_field = ft.TextField(
+        label="コメント（任意）",
+        width=380,
+        height=70,
+        multiline=True,
+        max_lines=3,
+        hint_text="例）少し頭痛があります。午前は軽めの作業にしたいです。",
+        visible=False,
+    )
+
     def on_condition_select(e):
         for c in condition_options.controls:
             c.bgcolor = ft.Colors.GREY_200
         e.control.bgcolor = ft.Colors.BLUE_200
         selected_condition.current = e.control
+
+        # △ / ✕ のときだけコメント欄を可視化
+        cond = e.control.data
+        comment_field.visible = cond in ["△", "✕"]
+
         page.update()
 
     def on_submit(e):
@@ -44,7 +59,11 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             # メール送信処理（△または✕のときのみ）
             if condition in ["△", "✕"]:
                 try:
-                    send_health_report(config_path=config_path, condition=condition)
+                    send_health_report(
+                        config_path=config_path,
+                        condition=condition,
+                        comment=(comment_field.value or "").strip() or None,
+                    )
                 except Exception as ex:
                     status.value += f"\n[メール送信失敗] {ex}"
                     status.color = ft.Colors.RED
@@ -92,19 +111,21 @@ def wellchecker_form(page: ft.Page, config_path: Path):
         [
             build_condition_tile("😊", "◎", "◎", "元気いっぱい！"),
             build_condition_tile("🙂", "○", "○", "いつも通り"),
-            build_condition_tile("😐", "△", "△", "少し不調"),
-            build_condition_tile("😷", "✕", "✕", "休むかも..."),
+            build_condition_tile("😐", "△", "△", "少し不調かも"),
+            build_condition_tile("😷", "✕", "✕", "早退するかも..."),
         ],
         alignment=ft.MainAxisAlignment.SPACE_EVENLY,
     )
 
-    submit_button = ft.ElevatedButton("体調を送信", on_click=on_submit, bgcolor=ft.Colors.BLUE, color=ft.Colors.WHITE)
+    submit_button = ft.ElevatedButton("体調を申告", on_click=on_submit, bgcolor=ft.Colors.BLUE, color=ft.Colors.WHITE)
     return ft.Column(
         [
             ft.Row([ft.Text("今日の体調を申告してください", size=18, expand=True)]),
             ft.Divider(),
             condition_options,
             ft.Container(height=20),
+            comment_field,
+            ft.Container(height=10),
             submit_button,
             status,
         ],
