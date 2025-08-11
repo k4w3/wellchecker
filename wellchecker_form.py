@@ -3,7 +3,9 @@ from pathlib import Path
 
 import flet as ft
 
+from config_handler import load_config
 from mail_sender import send_health_report
+from messages import pick_healing_message
 from settings_form import settings_form
 from utils import write_last_run_datetime
 
@@ -16,8 +18,8 @@ def wellchecker_form(page: ft.Page, config_path: Path):
     page.window_resizable = False
 
     today = datetime.date.today().strftime("%Y-%m-%d")
-    submitted = False
     status = ft.Text(value="", size=12, color=ft.Colors.GREEN)
+    healing_text = ft.Text(value="", size=24, color=ft.Colors.BLUE, text_align=ft.TextAlign.CENTER, max_lines=3)
     selected_condition = ft.Ref[ft.Container]()
 
     comment_field = ft.TextField(
@@ -43,17 +45,12 @@ def wellchecker_form(page: ft.Page, config_path: Path):
         page.update()
 
     def on_submit(e):
-        nonlocal submitted
         if not selected_condition.current:
             status.value = "体調を選択してください。"
-            status.color = ft.Colors.RED
-        elif submitted:
-            status.value = "本日はすでに申告済みです。"
             status.color = ft.Colors.RED
         else:
             condition = selected_condition.current.data
             status.value = f"{today} の体調 ({condition}) を申告しました。"
-            submitted = True
             status.color = ft.Colors.GREEN
 
             # メール送信処理（△または✕のときのみ）
@@ -70,6 +67,22 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
             # 実行記録
             write_last_run_datetime()
+
+            # 癒やしの一言（直近履歴と重複しないもの）
+            try:
+                surname = ""
+                try:
+                    config = load_config(config_path)
+                    surname = config.get("user_last_name", "").strip()
+                except Exception:
+                    pass
+                healing_text.value = f"💬 {pick_healing_message(condition, name=surname)}"
+            except Exception:
+                healing_text.value = "💬 ひと息ついて、今日も無理なくいきましょう。"
+
+            comment_field.visible = False
+            comment_field.value = ""
+            submit_button.disabled = True
 
         page.update()
 
@@ -117,7 +130,13 @@ def wellchecker_form(page: ft.Page, config_path: Path):
         alignment=ft.MainAxisAlignment.SPACE_EVENLY,
     )
 
-    submit_button = ft.ElevatedButton("体調を申告", on_click=on_submit, bgcolor=ft.Colors.BLUE, color=ft.Colors.WHITE)
+    submit_button = ft.ElevatedButton(
+        "体調を申告",
+        on_click=on_submit,
+        bgcolor=ft.Colors.BLUE,
+        color=ft.Colors.WHITE,
+    )
+
     return ft.Column(
         [
             ft.Row([ft.Text("今日の体調を申告してください", size=18, expand=True)]),
@@ -128,6 +147,7 @@ def wellchecker_form(page: ft.Page, config_path: Path):
             ft.Container(height=10),
             submit_button,
             status,
+            healing_text,
         ],
         spacing=12,
         alignment=ft.MainAxisAlignment.START,
