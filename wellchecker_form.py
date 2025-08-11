@@ -18,7 +18,6 @@ def wellchecker_form(page: ft.Page, config_path: Path):
     page.window_resizable = False
 
     today = datetime.date.today().strftime("%Y-%m-%d")
-    submitted = False
     status = ft.Text(value="", size=12, color=ft.Colors.GREEN)
     healing_text = ft.Text(value="", size=24, color=ft.Colors.BLUE, text_align=ft.TextAlign.CENTER, max_lines=3)
     selected_condition = ft.Ref[ft.Container]()
@@ -46,17 +45,12 @@ def wellchecker_form(page: ft.Page, config_path: Path):
         page.update()
 
     def on_submit(e):
-        nonlocal submitted
         if not selected_condition.current:
             status.value = "体調を選択してください。"
-            status.color = ft.Colors.RED
-        elif submitted:
-            status.value = "本日はすでに申告済みです。"
             status.color = ft.Colors.RED
         else:
             condition = selected_condition.current.data
             status.value = f"{today} の体調 ({condition}) を申告しました。"
-            submitted = True
             status.color = ft.Colors.GREEN
 
             # メール送信処理（△または✕のときのみ）
@@ -88,6 +82,7 @@ def wellchecker_form(page: ft.Page, config_path: Path):
 
             comment_field.visible = False
             comment_field.value = ""
+            submit_button.disabled = True
 
         page.update()
 
